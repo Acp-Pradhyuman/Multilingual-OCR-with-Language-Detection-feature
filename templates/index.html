@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Text Translation</title>
+    <style>
+        /* Style for the loading spinner */
+        #loading {
+            display: none;
+        }
+        /* Style for the button */
+        #read_aloud_btn {
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image for Text Extraction and Translation</h1>
+    
+    <!-- Form to upload an image -->
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="image">Select Image:</label>
+        <input type="file" id="image" name="image" required>
+        <br><br>
+        <input type="submit" value="Upload and Process Image">
+    </form>
+
+    <hr>
+
+    <!-- Show a loading message/spinner during processing -->
+    <div id="loading">
+        <p>Processing the image, please wait...</p>
+    </div>
+
+    <!-- Display the results -->
+    <div id="result">
+        <h2>Results:</h2>
+        <p id="extracted_text"></p>
+        <p id="detected_language"></p>
+        <p id="translated_text"></p>
+        <!-- Read Aloud Button -->
+        <button id="read_aloud_btn">Read Aloud</button>
+    </div>
+
+    <script>
+        // Add form submission handling via JavaScript (for AJAX requests)
+        document.querySelector('form').onsubmit = async function(event) {
+            event.preventDefault();
+            
+            // Clear the previous results
+            document.getElementById("extracted_text").textContent = "";
+            document.getElementById("detected_language").textContent = "";
+            document.getElementById("translated_text").textContent = "";
+            
+            // Show loading state
+            document.getElementById("loading").style.display = "block";
+            
+            let formData = new FormData();
+            formData.append("image", document.getElementById("image").files[0]);
+            
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Hide loading state once the request is complete
+            document.getElementById("loading").style.display = "none";
+            
+            const data = await response.json();
+            
+            // Display the results
+            document.getElementById("extracted_text").textContent = "Extracted Text: " + data.extracted_text;
+            document.getElementById("detected_language").textContent = "Detected Language: " + data.detected_language;
+            document.getElementById("translated_text").textContent = "Translated Text: " + (data.translated_text || "Not Available");
+
+            // Show the "Read Aloud" button if text is available
+            document.getElementById("read_aloud_btn").style.display = 'block';
+
+            // Store the text-to-speech text (either translated or extracted text)
+            window.speechText = data.translated_text || data.extracted_text;
+        };
+
+        // Add event listener for the "Read Aloud" button
+        document.getElementById("read_aloud_btn").onclick = function() {
+            if (window.speechText) {
+                // Call the backend API to trigger speech synthesis
+                fetch('/speak', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: window.speechText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Speech started:", data);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            }
+        };
+    </script>
+</body>
+</html>

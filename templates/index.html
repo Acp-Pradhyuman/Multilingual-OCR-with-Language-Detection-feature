@@ -5,13 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Text Translation</title>
     <style>
-        /* Style for the loading spinner */
+        /* Basic Reset */
+        body, h1, h2, p, form, input, button {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* General Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4A90E2;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #2C3E50;
+            margin-top: 20px;
+        }
+
+        /* Form Styling */
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        input[type="submit"] {
+            display: block;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Loading Spinner */
         #loading {
+            text-align: center;
             display: none;
         }
-        /* Style for the button */
-        #read_aloud_btn {
+
+        /* Results Styling */
+        #result {
+            max-width: 600px; /* Increased width */
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px; /* Increased padding */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: none; /* Initially hidden */
+        }
+
+        #result h2 {
+            font-size: 1.8em; /* Larger heading */
+            margin-bottom: 20px;
+            color: #2C3E50;
+        }
+
+        #result p {
+            font-size: 18px; /* Larger font size */
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        /* Button for 'Read Aloud' */
+        #read_aloud_btn {
+            background-color: #FF8C00;
+            color: white;
+            font-size: 18px; /* Larger button font */
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #read_aloud_btn:hover {
+            background-color: #e07b00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            form, #result {
+                width: 100%;
+                padding: 15px;
+            }
+
+            #result p {
+                font-size: 16px; /* Adjust font size for smaller screens */
+            }
+
+            #result h2 {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
@@ -33,7 +166,7 @@
         <p>Processing the image, please wait...</p>
     </div>
 
-    <!-- Display the results -->
+    <!-- Display the results (Initially hidden) -->
     <div id="result">
         <h2>Results:</h2>
         <p id="extracted_text"></p>
@@ -76,6 +209,9 @@
 
             // Show the "Read Aloud" button if text is available
             document.getElementById("read_aloud_btn").style.display = 'block';
+
+            // Show the results section
+            document.getElementById("result").style.display = "block";
 
             // Store the text-to-speech text (either translated or extracted text)
             window.speechText = data.translated_text || data.extracted_text;
